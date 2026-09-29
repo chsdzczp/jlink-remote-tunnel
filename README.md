@@ -24,3 +24,32 @@ python tunnel_server.py [port]   # 默认端口 19020
 
 - 兼容 SEGGER J-Link Remote Server 的隧道协议。
 - 仅用于自有设备的远程调试与互操作测试，请遵守相关软件许可条款。
+
+---
+
+## English
+
+A self-hosted relay server for J-Link remote debugging tunnels (Python asyncio, single file, no third-party dependencies). It takes over the relay role of SEGGER Remote Server / `jlink.segger.com`: both the hardware side (Remote) and the debugging side (Client) connect to this server, which handles pairing and relays the traffic.
+
+### Features
+
+- Two connection modes:
+  - **SN mode**: pairing by serial number only;
+  - **TLV mode**: name / serial-number identity, optional password.
+- In password mode, authentication (8-byte challenge / 32-byte SHA-256 response) happens end-to-end between client and remote hardware — the server only relays it and never sees the plaintext password.
+- Traffic from the remote received before pairing is buffered and replayed afterwards, so no announce is lost.
+- Status codes match the official semantics: duplicate registration `-3`, unknown remote `-2`, busy remote `-4`.
+- TLV mode includes a keepalive sequence (5×`0xAA` + `0xB6`, each with a timestamp).
+
+### Usage
+
+```bash
+python tunnel_server.py [port]   # default port: 19020
+```
+
+Point the J-Link Remote Server host at the machine running this server. Requires Python 3.10+.
+
+### Notes
+
+- Compatible with the SEGGER J-Link Remote Server tunnel protocol.
+- Intended for remote debugging and interoperability testing of your own devices; please comply with the relevant software license terms.
